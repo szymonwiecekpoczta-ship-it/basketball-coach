@@ -1,0 +1,22 @@
+{
+  "name": "Basketball Coach AI",
+  "short_name": "BCoach",
+  "description": "Twój osobisty trener koszykówki",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#f97316",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://api.iconify.design/emojione:basketball.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "https://api.iconify.design/emojione:basketball.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
