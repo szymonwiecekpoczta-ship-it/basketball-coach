@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Basketball Coach AI</title>
+  
+  <!-- Łączenie z manifest.json — mówi przeglądarce że to PWA -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- Kolor paska statusu na Androidzie -->
+  <meta name="theme-color" content="#f97316">
+  
+  <!-- Ikona dla iOS (jeśli kiedyś używasz) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+
+  <!-- GŁÓWNA NAWIGACJA DOLNA (jak w każdej apce mobilnej) -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-screen="dashboard">
+      <!-- SVG ikona dashboard -->
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span>Dashboard</span>
+    </button>
+    <button class="nav-btn" data-screen="workout">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M6 4v16M18 4v16M3 8h18M3 16h18"/>
+      </svg>
+      <span>Trening</span>
+    </button>
+    <button class="nav-btn" data-screen="nutrition">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+        <path d="M12 6v6l4 2"/>
+      </svg>
+      <span>Kalorie</span>
+    </button>
+    <button class="nav-btn" data-screen="basketball">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M4.93 4.93L19.07 19.07M12 2v20M2 12h20"/>
+      </svg>
+      <span>Rzuty</span>
+    </button>
+    <button class="nav-btn" data-screen="stats">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M18 20V10M12 20V4M6 20v-6"/>
+      </svg>
+      <span>Statystyki</span>
+    </button>
+  </nav>
+
+  <!-- EKRANY APLIKACJI — jeden na raz jest widoczny -->
+  
+  <!-- EKRAN 1: DASHBOARD -->
+  <main id="screen-dashboard" class="screen active">
+    
+    <!-- KARTA RTP — Gotowość do Treningu -->
+    <section class="card rtp-card">
+      <div class="rtp-header">
+        <h2>Gotowość do gry</h2>
+        <div id="rtp-status-badge" class="rtp-badge">Ładowanie...</div>
+      </div>
+      <!-- Duży licznik RTP -->
+      <div class="rtp-score-container">
+        <div id="rtp-score" class="rtp-score">--</div>
+        <div class="rtp-max">/100</div>
+      </div>
+      <!-- Pasek postępu -->
+      <div class="progress-bar-container">
+        <div id="rtp-progress-bar" class="progress-bar" style="width: 0%"></div>
+      </div>
+      <!-- Składowe RTP -->
+      <div id="rtp-components" class="rtp-components">
+        <!-- Wypełniane przez JavaScript -->
+      </div>
+    </section>
+    
+    <!-- KARTA KROKÓW -->
+    <section class="card steps-card">
+      <div class="card-header">
+        <h3>Dzienne kroki</h3>
+        <span id="steps-goal-text" class="goal-text">Cel: 10,000</span>
+      </div>
+      <div class="steps-count">
+        <span id="steps-current">--</span>
+        <span class="steps-unit">kroków</span>
+      </div>
+      <!-- Pasek postępu kroków -->
+      <div class="progress-bar-container striped">
+        <div id="steps-progress" class="progress-bar steps-bar" style="width: 0%"></div>
+      </div>
+      <!-- Kamienie milowe -->
+      <div class="steps-milestones">
+        <span class="milestone" data-steps="5000">5k</span>
+        <span class="milestone" data-steps="8000">8k</span>
+        <span class="milestone" data-steps="10000">10k</span>
+      </div>
+      <!-- Porównanie z Currym -->
+      <div id="curry-steps-comparison" class="curry-comparison"></div>
+    </section>
+    
+    <!-- KARTA PORANNEGO RAPORTU AI -->
+    <section class="card morning-report-card">
+      <div class="card-header">
+        <h3>Raport poranny</h3>
+        <span class="ai-badge">AI</span>
+      </div>
+      <div id="morning-report-text" class="morning-report-text">
+        Generuję raport na dziś...
+      </div>
+    </section>
+    
+    <!-- KARTA WAGI (Renpho) -->
+    <section class="card weight-card">
+      <div class="card-header">
+        <h3>Waga i skład ciała</h3>
+        <button onclick="openRenphoSync()" class="sync-btn">Aktualizuj</button>
+      </div>
+      <div class="weight-metrics">
+        <div class="metric">
+          <div id="weight-value" class="metric-value">--</div>
+          <div class="metric-label">kg</div>
+        </div>
+        <div class="metric">
+          <div id="bodyfat-value" class="metric-value">--</div>
+          <div class="metric-label">% tłuszczu</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value goal-value">73-75</div>
+          <div class="metric-label">cel (kg)</div>
+        </div>
+      </div>
+      <!-- Trend wagowy (mini wykres) -->
+      <canvas id="weight-trend-chart" height="60"></canvas>
+    </section>
+
+  </main>
+
+  <!-- EKRAN 2: DZIENNIK TRENINGOWY -->
+  <main id="screen-workout" class="screen">
+    
+    <!-- Wybór treningu -->
+    <section class="card">
+      <h2>Wybierz trening</h2>
+      <div class="workout-type-buttons">
+        <button id="btn-workout-a" class="workout-type-btn" onclick="startWorkout('A')">
+          <span class="wtype-label">A</span>
+          <span class="wtype-name">Nogi + Góra</span>
+          <span class="wtype-sub">Siła i moc</span>
+        </button>
+        <button id="btn-workout-b" class="workout-type-btn" onclick="startWorkout('B')">
+          <span class="wtype-label">B</span>
+          <span class="wtype-name">Tylna taśma</span>
+          <span class="wtype-sub">Siła i masa</span>
+        </button>
+      </div>
+    </section>
+    
+    <!-- Aktywna sesja treningowa (ukryta dopóki nie wybierzesz treningu) -->
+    <section id="active-workout-section" class="card hidden">
+      <div class="workout-session-header">
+        <h3 id="current-workout-title">Trening A</h3>
+        <span id="workout-timer" class="workout-timer">00:00</span>
+      </div>
+      
+      <!-- Lista ćwiczeń — wypełniana dynamicznie -->
+      <div id="exercises-list" class="exercises-list"></div>
+      
+      <!-- Przycisk zakończenia -->
+      <button onclick="finishWorkout()" class="finish-workout-btn">
+        Zakończ trening
+      </button>
+    </section>
+    
+    <!-- Historia treningów -->
+    <section class="card">
+      <h3>Ostatnie treningi</h3>
+      <div id="workout-history" class="workout-history">
+        <!-- Wypełniane przez JavaScript -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- EKRAN 3: KALORIE AI -->
+  <main id="screen-nutrition" class="screen">
+    
+    <!-- Dzienny licznik kalorii -->
+    <section class="card">
+      <h2>Dzisiaj</h2>
+      <div class="calorie-counter">
+        <div class="cal-consumed">
+          <span id="calories-consumed">0</span>
+          <span class="cal-unit">kcal</span>
+        </div>
+        <div class="cal-separator">/</div>
+        <div class="cal-target">
+          <span id="calories-target">2800</span>
+          <span class="cal-unit">cel</span>
+        </div>
+      </div>
+      <!-- Pasek kalorii: zielony → żółty → czerwony -->
+      <div class="calorie-bar-container">
+        <div id="calorie-bar" class="calorie-bar" style="width: 0%"></div>
+      </div>
+      <!-- Makro -->
+      <div class="macro-grid">
+        <div class="macro-item">
+          <div id="protein-consumed">0g</div>
+          <div class="macro-label">Białko</div>
+        </div>
+        <div class="macro-item">
+          <div id="carbs-consumed">0g</div>
+          <div class="macro-label">Węgle</div>
+        </div>
+        <div class="macro-item">
+          <div id="fat-consumed">0g</div>
+          <div class="macro-label">Tłuszcze</div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Dodaj posiłek przez zdjęcie -->
+    <section class="card">
+      <h3>Dodaj posiłek</h3>
+      <div class="meal-photo-area">
+        <input type="file" id="meal-photo-input" accept="image/*" capture="environment" 
+               onchange="analyzeMeal(event)" style="display:none">
+        <button onclick="document.getElementById('meal-photo-input').click()" class="photo-btn">
+          📷 Zrób zdjęcie posiłku
+        </button>
+        <button onclick="document.getElementById('meal-photo-input').click()" class="photo-btn secondary">
+          Wybierz z galerii
+        </button>
+      </div>
+      
+      <!-- Wynik analizy AI -->
+      <div id="meal-analysis-result" class="meal-analysis hidden"></div>
+    </section>
+    
+    <!-- Lista posiłków z dzisiaj -->
+    <div id="meals-today" class="meals-list"></div>
+
+  </main>
+
+  <!-- EKRAN 4: RZUTY KOSZYKARSKIE -->
+  <main id="screen-basketball" class="screen">
+    
+    <!-- Szybki zapis rzutów -->
+    <section class="card">
+      <h2>Zapisz rzuty</h2>
+      <div class="shot-input-grid">
+        <div class="shot-input-group">
+          <label>Trafione</label>
+          <div class="shot-counter">
+            <button onclick="adjustShots('made', -1)">-</button>
+            <span id="shots-made">0</span>
+            <button onclick="adjustShots('made', 1)">+</button>
+          </div>
+        </div>
+        <div class="shot-separator">/</div>
+        <div class="shot-input-group">
+          <label>Oddane</label>
+          <div class="shot-counter">
+            <button onclick="adjustShots('attempted', -1)">-</button>
+            <span id="shots-attempted">0</span>
+            <button onclick="adjustShots('attempted', 1)">+</button>
+          </div>
+        </div>
+      </div>
+      <div id="shot-percentage" class="shot-percentage">--%</div>
+      <button onclick="saveShots()" class="save-shots-btn">Zapisz sesję rzutów</button>
+    </section>
+    
+    <!-- Analiza wideo rzutu przez AI -->
+    <section class="card">
+      <h3>Analiza rzutu AI</h3>
+      <div class="video-upload-area">
+        <input type="file" id="shot-video-input" accept="video/*" capture="environment"
+               onchange="analyzeShotVideoUpload(event)" style="display:none">
+        <button onclick="document.getElementById('shot-video-input').click()" class="photo-btn">
+          🎥 Nagraj/wgraj swój rzut
+        </button>
+      </div>
+      
+      <!-- Wynik analizy wideo -->
+      <div id="video-analysis-result" class="video-analysis hidden"></div>
+    </section>
+    
+    <!-- Historia skuteczności rzutów -->
+    <section class="card">
+      <h3>Skuteczność rzutów</h3>
+      <canvas id="shots-chart" height="120"></canvas>
+    </section>
+
+  </main>
+
+  <!-- EKRAN 5: STATYSTYKI / PORÓWNANIE Z CURRYM -->
+  <main id="screen-stats" class="screen">
+    
+    <!-- Porównanie z Currym -->
+    <section class="card curry-comparison-card">
+      <div class="curry-header">
+        <h2>vs Steph Curry</h2>
+        <span class="curry-season">Szacunki NBA</span>
+      </div>
+      <div id="curry-comparison-grid" class="comparison-grid">
+        <!-- Wypełniane przez JavaScript -->
+      </div>
+    </section>
+    
+    <!-- Odznaki i gamifikacja -->
+    <section class="card">
+      <h3>Odznaki</h3>
+      <div id="badges-grid" class="badges-grid">
+        <!-- Wypełniane przez JavaScript -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: Synchronizacja Renpho -->
+  <div id="renpho-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Aktualizuj dane z Renpho</h3>
+      <p>Wpisz dane ręcznie z aplikacji Renpho (integracja automatyczna wymaga premium Renpho — ta metoda jest darmowa):</p>
+      <div class="form-group">
+        <label>Waga (kg)</label>
+        <input type="number" id="renpho-weight" step="0.1" placeholder="np. 83.5">
+      </div>
+      <div class="form-group">
+        <label>% tkanki tłuszczowej</label>
+        <input type="number" id="renpho-bodyfat" step="0.1" placeholder="np. 21.8">
+      </div>
+      <div class="modal-buttons">
+        <button onclick="saveRenphoData()" class="btn-primary">Zapisz</button>
+        <button onclick="closeModal('renpho-modal')" class="btn-secondary">Anuluj</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rejestracja Service Workera — uruchamia tryb offline i powiadomienia -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker zarejestrowany'))
+        .catch(err => console.error('Błąd SW:', err));
+    }
+  </script>
+  
+  <!-- Główny JavaScript aplikacji -->
+  <script type="module" src="/src/app.js"></script>
+
+</body>
+</html>
